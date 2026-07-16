@@ -11,35 +11,29 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Download your code from GitHub to the cloud runner
+      # Step 1: Clone your code to the runner
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # Step 2: Set up Docker Environment on the runner
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+      # Step 2: Set up Python on the runner
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-python-version: '3.11'
 
-      # Step 3: Create a dummy .env file so Docker Compose doesn't complain about missing files
-      - name: Create Temporary .env File
+      # Step 3: Install dependencies directly on the runner
+      - name: Install Dependencies
         run: |
-          cp .env.example .env
+          python -m pip install --upgrade pip
+          if [ -f backend/requirements.txt ]; then
+            pip install -r backend/requirements.txt
+          elif [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          fi
+          pip install pytest httpx
 
-      # Step 4: Spin up the containers using your docker-compose.yml
-      - name: Start Containers with Docker Compose
-        run: |
-          docker compose up -d
-
-      # Step 5: Wait for containers to be fully healthy
-      - name: Wait for services to start
-        run: sleep 10
-
-    # Step 6: Force install your application's requirements (checking both paths) and testing tools
-      - name: Install Project Dependencies and Testing Tools
-        run: |
-          docker compose exec -T --user root backend pip install -r backend/requirements.txt || docker compose exec -T --user root backend pip install -r requirements.txt
-          docker compose exec -T --user root backend pip install pytest httpx
-
-      # Step 7: Run your test suite using pytest
+      # Step 4: Run your tests on the runner
       - name: Run Test Suite
         run: |
-          docker compose exec -T --user root backend pytest app/test_main.py
+          export PYTHONPATH=$PYTHONPATH:$(pwd)
+          pytest
