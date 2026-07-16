@@ -1,0 +1,36 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env  # <-- This tells docker to automatically read your .env file!
+    environment:
+      - ENVIRONMENT=dev
+      - PROJECT_NAME="LLM Shield Platform Local Dev"
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/postgres
+      - RESEND_API_KEY=mock_key
+      - JWT_SECRET_KEY=local_development_secret_key_12345
+      # Pass these variables from your .env file into the container:
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_KEY=${SUPABASE_KEY}
+    volumes:
+      - ./backend/app:/app/app
+    restart: always
+
+  # Dev DB placeholder for isolated local testing if Supabase is offline
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

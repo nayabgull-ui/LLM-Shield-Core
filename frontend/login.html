@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLM Shield Gateway - Secure Session Initiation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #060913; }
+        .cyber-glow { box-shadow: 0 0 15px rgba(6, 182, 212, 0.15); }
+        .text-glow { text-shadow: 0 0 8px rgba(6, 182, 212, 0.4); }
+    </style>
+</head>
+<body class="min-h-screen text-gray-300 flex flex-col justify-between">
+
+    <!-- Header -->
+    <header class="border-b border-gray-900 bg-gray-950/40 p-4">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <h1 class="text-sm font-mono tracking-widest text-cyan-500 font-bold">🛡️ LLM_SHIELD // SECURE_ACCESS</h1>
+            <span class="text-[10px] font-mono text-cyan-600">PORT: 8000</span>
+        </div>
+    </header>
+
+    <!-- Main Grid Layout -->
+    <main class="flex-grow max-w-6xl w-full mx-auto p-6 grid md:grid-cols-12 gap-8 items-center">
+        
+        <!-- Left Column: Live Terminal Visualizer -->
+        <div class="hidden md:flex md:col-span-7 flex-col h-[420px] bg-black/60 border border-cyan-950/40 rounded-lg p-5 font-mono text-xs text-cyan-600/80 justify-between">
+            <div class="space-y-2 select-none">
+                <p class="text-cyan-500 font-bold">>>> INITIALIZING SECURITY NODE DETECTION ENGINE...</p>
+                <p class="text-gray-600">[OK] Connected to Supabase Cluster</p>
+                <p class="text-gray-600">[OK] Local core heuristic rules loaded</p>
+                <p class="text-gray-600">[OK] Port 8000 listening for inbound packets</p>
+                <p class="text-cyan-700">>>> waiting for administrative node credentials to verify session key...</p>
+                <p id="terminal-cursor" class="text-gray-700 animate-pulse">_</p>
+            </div>
+            <div class="border-t border-cyan-950/30 pt-3 text-[10px] text-cyan-800">
+                SYSTEM: ACTIVE | STATUS: SECURE
+            </div>
+        </div>
+
+        <!-- Right Column: Login Form -->
+        <div class="md:col-span-5 w-full bg-gray-900/40 border border-gray-800/80 rounded-xl p-8 shadow-2xl cyber-glow">
+            
+            <div class="mb-6">
+                <h2 class="text-lg font-mono font-bold text-cyan-400 text-glow tracking-wider">SECURE GATEWAY ACCESS</h2>
+                <p class="text-[10px] text-gray-500 mt-1 uppercase tracking-wider">Provide credentials to spin up sandbox</p>
+            </div>
+
+            <!-- Error Message Box -->
+            <div id="error-box" class="hidden mb-4 p-3 bg-red-950/40 border border-red-900/50 text-red-400 text-xs rounded font-mono"></div>
+
+            <form id="login-form" class="space-y-5">
+                <div>
+                    <label class="block text-[9px] uppercase tracking-wider text-gray-500 mb-1.5 font-mono">Operator Email</label>
+                    <input id="email-input" type="email" required placeholder="operator@llmshield.local" class="w-full bg-gray-950 border border-gray-800 rounded-lg p-3 text-sm text-gray-200 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition duration-200">
+                </div>
+                
+                <div>
+                    <div class="flex justify-between items-end mb-1.5">
+                        <label class="text-[9px] uppercase tracking-wider text-gray-500 font-mono">Access Token</label>
+                        <a href="#" class="text-[9px] text-gray-600 hover:text-cyan-400 font-mono">[ Lost Key ]</a>
+                    </div>
+                    <input id="password-input" type="password" required placeholder="••••••••••••" class="w-full bg-gray-950 border border-gray-800 rounded-lg p-3 text-sm text-gray-200 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition duration-200">
+                </div>
+
+                <button type="submit" id="submit-btn" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 px-4 rounded-lg text-xs tracking-wider uppercase transition duration-200 shadow-lg shadow-cyan-950/50">
+                    Initialize Session
+                </button>
+            </form>
+
+            <!-- SSO / Alternate Flow -->
+            <div class="mt-6 pt-5 border-t border-gray-800/60 text-center">
+                <p class="text-[9px] text-gray-600 uppercase tracking-wider mb-3">Or verify with Identity Provider</p>
+                <div class="grid grid-cols-2 gap-3 font-mono text-[10px]">
+                    <button class="border border-gray-800 rounded p-2 text-gray-500 hover:text-cyan-400 hover:border-cyan-900 transition">GitHub</button>
+                    <button class="border border-gray-800 rounded p-2 text-gray-500 hover:text-cyan-400 hover:border-cyan-900 transition">Google</button>
+                </div>
+                
+                <p class="mt-6 text-[10px] text-gray-500">
+                    New operator? <a href="#" class="text-cyan-500 hover:underline font-semibold">[ Provision Node ]</a>
+                </p>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center text-[10px] text-gray-700 p-4 border-t border-gray-950">
+        © 2026 LLM SHIELD PLATFORM // SECURITY OPERATIONS CENTER
+    </footer>
+
+    <!-- Frontend Form Authentication Logic -->
+    <script>
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Bypass the backend completely for the demo!
+            localStorage.setItem('access_token', 'bypass-operator-token');
+            localStorage.setItem('user_email', document.getElementById('email-input').value);
+            
+            // Go straight to the dashboard!
+            window.location.href = 'index.html';
+        });
+    </script>
+</body>
+</html>
