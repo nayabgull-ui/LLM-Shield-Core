@@ -33,12 +33,13 @@ jobs:
       - name: Wait for services to start
         run: sleep 10
 
-    # Step 6: Install test dependencies inside the container's active environment
-      - name: Install Testing Tools
+    # Step 6: Force install your application's requirements and testing tools
+      - name: Install Project Dependencies and Testing Tools
         run: |
-          docker compose exec -T --user root backend python -m pip install pytest httpx
+          docker compose exec -T --user root backend pip install -r requirements.txt
+          docker compose exec -T --user root backend pip install pytest httpx
 
-      # Step 7: Run your test suite using the container's python executable
+      # Step 7: Run your test suite using pytest
       - name: Run Test Suite
         run: |
-          docker compose exec -T --user root backend python -m pytest app/test_main.py
+          docker compose exec -T --user root backend pytest app/test_main.py
