@@ -19,5 +19,6 @@ class Settings(BaseSettings):
 
     class Config:
         env_file = ".env"
+        extra = "ignore"  # 👈 This tells Pydantic to ignore extra GitHub environment variables
 
 settings = Settings()
