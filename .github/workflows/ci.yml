@@ -25,7 +25,6 @@ jobs:
     - name: Install Project Dependencies
       run: |
         python -m pip install --upgrade pip
-        # Installs all required backend and cryptographic dependencies directly
         pip install fastapi uvicorn pydantic pydantic-settings supabase resend pytest httpx bandit python-jose[cryptography] passlib bcrypt
 
     # --- Test Phase: Custom Python Tests ---
@@ -37,7 +36,6 @@ jobs:
 
     # --- DevSecOps SAST: Run Bandit Scanner ---
     - name: Run Bandit (Static Code Security Scan)
-      # bandit scans your backend files for SQL injections, hardcoded keys, and command injection risks
       run: |
         bandit -r backend/app/ -f txt -o bandit-report.txt || true
 
@@ -57,11 +55,30 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v4
 
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install fastapi uvicorn pydantic pydantic-settings supabase resend python-jose[cryptography] passlib bcrypt
+
+    # --- Start FastAPI Local Server for DAST Scanning ---
+    - name: Start FastAPI Backend Local Server
+      env:
+        PYTHONPATH: backend
+      run: |
+        # Start the server in the background and wait a few seconds for it to boot
+        python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 &
+        sleep 5
+
     # --- DevSecOps DAST: Run OWASP ZAP Baseline Scan ---
     - name: OWASP ZAP Baseline Scan
       uses: zaproxy/action-baseline@v0.11.0
       with:
-        # Give ZAP your live deployment URL or local container URL to scan
-        target: 'https://your-deployed-api-url.com'
+        # Scan our local background FastAPI server directly in the pipeline runner
+        target: 'http://127.0.0.1:8000/docs'
         token: ${{ secrets.GITHUB_TOKEN }}
         fail_action: false
