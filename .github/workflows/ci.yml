@@ -28,11 +28,12 @@ jobs:
         # Manually installing your backend requirements so we don't need requirements.txt
         pip install fastapi uvicorn pydantic supabase resend pytest httpx bandit
 
-# --- Test Phase: Custom Python Tests ---
+# -# --- Test Phase: Custom Python Tests ---
     - name: Run Pytest (Custom Threat Injection & Endpoint Tests)
+      env:
+        PYTHONPATH: backend
       run: |
-        python -m pytest -v
-
+        python -m pytest backend/ -v
     # --- DevSecOps SAST: Run Bandit Scanner ---
     - name: Run Bandit (Static Code Security Scan)
       # bandit -r checks for SQL injections, hardcoded keys, and command injection risks
