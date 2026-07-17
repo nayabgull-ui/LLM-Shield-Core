@@ -25,20 +25,21 @@ jobs:
     - name: Install Project Dependencies
       run: |
         python -m pip install --upgrade pip
-        # Installing all required modules directly to prevent any missing package errors
-        pip install fastapi uvicorn pydantic pydantic-settings supabase resend pytest httpx bandit
+        # Installs all required backend and cryptographic dependencies directly
+        pip install fastapi uvicorn pydantic pydantic-settings supabase resend pytest httpx bandit python-jose[cryptography] passlib bcrypt
 
-# -# --- Test Phase: Custom Python Tests ---
+    # --- Test Phase: Custom Python Tests ---
     - name: Run Pytest (Custom Threat Injection & Endpoint Tests)
       env:
         PYTHONPATH: backend
       run: |
         python -m pytest backend/ -v
+
     # --- DevSecOps SAST: Run Bandit Scanner ---
     - name: Run Bandit (Static Code Security Scan)
-      # bandit -r checks for SQL injections, hardcoded keys, and command injection risks
+      # bandit scans your backend files for SQL injections, hardcoded keys, and command injection risks
       run: |
-        bandit -r app/ -f txt -o bandit-report.txt || true
+        bandit -r backend/app/ -f txt -o bandit-report.txt || true
 
     - name: Upload Bandit Security Report
       uses: actions/upload-artifact@v4
