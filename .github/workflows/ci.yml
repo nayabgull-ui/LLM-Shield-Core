@@ -70,7 +70,6 @@ jobs:
       env:
         PYTHONPATH: backend
       run: |
-        # Start the server in the background and wait a few seconds for it to boot
         python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 &
         sleep 5
 
@@ -78,7 +77,8 @@ jobs:
     - name: OWASP ZAP Baseline Scan
       uses: zaproxy/action-baseline@v0.11.0
       with:
-        # Scan our local background FastAPI server directly in the pipeline runner
-        target: 'http://127.0.0.1:8000/docs'
+        target: 'http://localhost:8000/docs'
         token: ${{ secrets.GITHUB_TOKEN }}
         fail_action: false
+        # This parameter forces Docker to run on the host network to reach localhost
+        cmd_options: '-z "--network=host"'
