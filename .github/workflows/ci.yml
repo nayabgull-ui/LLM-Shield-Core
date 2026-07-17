@@ -1,40 +1,65 @@
-name: LLM Shield CI Pipeline
+name: LLM Shield - Complete DevSecOps Pipeline
 
 on:
   push:
-    branches: [ main ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ main ]
+    branches: [ "main" ]
 
 jobs:
-  test:
+  # ==========================================
+  # JOB 1: Build & Python Code Security (SAST)
+  # ==========================================
+  security-and-test:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Clone your code to the runner
-      - name: Checkout Code
-        uses: actions/checkout@v4
+    - name: Checkout Code
+      uses: actions/checkout@v4
 
-      # Step 2: Set up Python on the runner
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
 
-      # Step 3: Install dependencies directly on the runner
-      - name: Install Dependencies
-        run: |
-          python -m pip install --upgrade pip
-          if [ -f backend/requirements.txt ]; then
-            pip install -r backend/requirements.txt
-          elif [ -f requirements.txt ]; then
-            pip install -r requirements.txt
-          fi
-          pip install pytest httpx
+    - name: Install Project Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest httpx bandit
 
-      # Step 4: Run your tests with the correct path
-      - name: Run Test Suite
-        run: |
-          cd backend
-          export PYTHONPATH=$(pwd)
-          pytest app/test_main.py
+    # --- Test Phase: Custom Python Tests ---
+    - name: Run Pytest (Custom Threat Injection & Endpoint Tests)
+      run: |
+        python -m pytest app/test_main.py -v
+
+    # --- DevSecOps SAST: Run Bandit Scanner ---
+    - name: Run Bandit (Static Code Security Scan)
+      # bandit -r checks for SQL injections, hardcoded keys, and command injection risks
+      run: |
+        bandit -r app/ -f txt -o bandit-report.txt || true
+
+    - name: Upload Bandit Security Report
+      uses: actions/upload-artifact@v4
+      with:
+        name: bandit-security-report
+        path: bandit-report.txt
+
+  # ==========================================
+  # JOB 2: Dynamic Endpoint Security (DAST)
+  # ==========================================
+  dast-scan:
+    needs: security-and-test
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    # --- DevSecOps DAST: Run OWASP ZAP Baseline Scan ---
+    - name: OWASP ZAP Baseline Scan
+      uses: zaproxy/action-baseline@v0.11.0
+      with:
+        # Give ZAP your live deployment URL or local container URL to scan
+        target: 'https://your-deployed-api-url.com'
+        token: ${{ secrets.GITHUB_TOKEN }}
+        fail_action: false
